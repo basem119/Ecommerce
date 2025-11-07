@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 // Load env from server/.env then fallback to project root .env
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -18,6 +20,9 @@ const orderProductRouter = require('./routes/customer_order_product');
 const notificationsRouter = require('./routes/notifications');
 const merchantRouter = require('./routes/merchant'); // Add this line
 const bulkUploadRouter = require('./routes/bulkUpload');
+
+const storeRouter = require("./routes/store");
+
 var cors = require("cors");
 
 // Import logging middleware
@@ -132,6 +137,8 @@ app.use("/api/notifications", notificationsRouter);
 app.use("/api/merchants", merchantRouter); 
 app.use("/api/bulk-upload", bulkUploadRouter);
 
+app.use("/api/v1/stores", storeRouter);
+
 // Health check endpoint (no rate limiting)
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -156,6 +163,27 @@ app.get('/rate-limit-info', (req, res) => {
     requestId: req.reqId
   });
 });
+// swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Electronics eCommerce API',
+      version: '1.0.0',
+      description: 'API documentation for Electronics eCommerce platform'
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001',
+        description: 'Development server'
+      }
+    ]
+  },
+  apis: ['./routes/*.js'], // Path to the API routes
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // 404 handler
 app.use('*', (req, res) => {

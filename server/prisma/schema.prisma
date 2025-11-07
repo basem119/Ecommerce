@@ -177,6 +177,19 @@ model bulk_upload_item {
   error         String?
 }
 
+model Store {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  tele1       String
+  tele2       String?
+  address     String
+  nickName    String?
+  brand       String
+  createdAt   DateTime @default(now())
+
+  @@map("stores")
+}
+
 enum BulkUploadStatus {
   PENDING
   COMPLETED
